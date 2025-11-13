@@ -21,6 +21,8 @@ python-dotenv==1.0.0
 
 # File handling
 aiofiles==23.2.1
+pandas==2.1.4
+pyarrow==14.0.1
 
 # Utilities
 pydantic==2.5.2

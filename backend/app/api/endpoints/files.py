@@ -2,32 +2,45 @@
 File management endpoints.
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from pathlib import Path
-import shutil
-import hashlib
-from datetime import datetime
+from typing import Optional, List
 import logging
-from uuid import uuid4
+from uuid import UUID
 
 from app.core.config import settings
-from app.models.schemas import FileUploadResponse, ApiResponse
+from app.models.schemas import (
+    FileUploadResponse,
+    FileMetadata,
+    ApiResponse,
+    FileListResponse
+)
+from app.services.file_handler import file_handler
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/upload", response_model=FileUploadResponse)
+@router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     """
-    Upload tick data file.
+    Upload data file with support for multiple formats.
 
-    Accepts CSV, Parquet, and JSON files.
+    Supported formats:
+    - Data files: CSV, Parquet, JSON, TXT
+    - Archives: ZIP, TAR, TAR.GZ, GZ
+
+    Archives are automatically extracted and individual files are saved.
     """
     try:
         # Validate file extension
         file_ext = Path(file.filename).suffix.lower()
+
+        # Handle .tar.gz specially
+        if file.filename.lower().endswith('.tar.gz'):
+            file_ext = '.tar.gz'
+
         allowed_exts = settings.ALLOWED_EXTENSIONS.split(',')
 
         if file_ext not in allowed_exts:
@@ -43,90 +56,131 @@ async def upload_file(file: UploadFile = File(...)):
         if file_size > settings.MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=400,
-                detail=f"File too large. Max size: {settings.MAX_FILE_SIZE} bytes"
+                detail=f"File too large. Max size: {settings.MAX_FILE_SIZE / 1024 / 1024:.0f}MB"
             )
 
-        # Generate unique filename
-        file_id = str(uuid4())
-        filename = f"{file_id}{file_ext}"
+        # Save file and extract if needed
+        result = await file_handler.save_file(
+            content=content,
+            original_filename=file.filename
+        )
 
-        # Save file
-        upload_dir = settings.upload_directory
-        upload_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"File uploaded successfully: {file.filename}")
 
-        file_path = upload_dir / filename
-        with open(file_path, 'wb') as f:
-            f.write(content)
-
-        # Calculate checksum
-        checksum = hashlib.sha256(content).hexdigest()
-
-        logger.info(f"File uploaded: {filename} ({file_size} bytes)")
-
-        # TODO: Save to database
-
-        return FileUploadResponse(
-            file_id=file_id,
-            filename=filename,
-            original_name=file.filename,
-            file_size=file_size,
-            uploaded_at=datetime.now()
+        return ApiResponse(
+            success=True,
+            data=result
         )
 
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"File upload error: {e}")
-        raise HTTPException(status_code=500, detail="File upload failed")
+        logger.error(f"File upload error: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"File upload failed: {str(e)}"
+        )
 
 
 @router.get("/list")
-async def list_files():
-    """List all uploaded files."""
+async def list_files(
+    parent_id: Optional[str] = Query(None, description="Filter by parent file ID"),
+    file_type: Optional[str] = Query(None, description="Filter by file type")
+):
+    """
+    List all uploaded files with optional filters.
+
+    Query parameters:
+    - parent_id: Show only files extracted from this archive
+    - file_type: Filter by file type (csv, json, zip, etc.)
+    """
     try:
-        upload_dir = settings.upload_directory
+        parent_uuid = UUID(parent_id) if parent_id else None
+        files = await file_handler.list_files(
+            parent_id=parent_uuid,
+            file_type=file_type
+        )
 
-        if not upload_dir.exists():
-            return {"files": []}
+        file_list = []
+        for file_record in files:
+            file_list.append({
+                "id": str(file_record.id),
+                "filename": file_record.filename,
+                "original_name": file_record.original_name,
+                "file_size": file_record.file_size,
+                "file_type": file_record.file_type,
+                "is_extracted": bool(file_record.is_extracted),
+                "parent_file_id": str(file_record.parent_file_id) if file_record.parent_file_id else None,
+                "metadata": file_record.metadata,
+                "uploaded_at": file_record.uploaded_at.isoformat()
+            })
 
-        files = []
-        for file_path in upload_dir.glob("*"):
-            if file_path.is_file():
-                stat = file_path.stat()
-                files.append({
-                    "filename": file_path.name,
-                    "size": stat.st_size,
-                    "uploaded_at": datetime.fromtimestamp(stat.st_mtime).isoformat()
-                })
-
-        return {"files": files}
+        return ApiResponse(
+            success=True,
+            data={"files": file_list, "count": len(file_list)}
+        )
 
     except Exception as e:
-        logger.error(f"List files error: {e}")
+        logger.error(f"List files error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to list files")
+
+
+@router.get("/{file_id}")
+async def get_file(file_id: str):
+    """Get file metadata by ID."""
+    try:
+        file_uuid = UUID(file_id)
+        file_record = await file_handler.get_file_by_id(file_uuid)
+
+        if not file_record:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        return ApiResponse(
+            success=True,
+            data={
+                "id": str(file_record.id),
+                "filename": file_record.filename,
+                "original_name": file_record.original_name,
+                "file_size": file_record.file_size,
+                "file_type": file_record.file_type,
+                "checksum": file_record.checksum,
+                "is_extracted": bool(file_record.is_extracted),
+                "parent_file_id": str(file_record.parent_file_id) if file_record.parent_file_id else None,
+                "metadata": file_record.metadata,
+                "uploaded_at": file_record.uploaded_at.isoformat()
+            }
+        )
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid file ID format")
+    except Exception as e:
+        logger.error(f"Get file error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to get file")
 
 
 @router.delete("/{file_id}")
 async def delete_file(file_id: str):
-    """Delete uploaded file."""
+    """
+    Delete uploaded file and all extracted files if it's an archive.
+    """
     try:
-        upload_dir = settings.upload_directory
+        file_uuid = UUID(file_id)
+        success = await file_handler.delete_file(file_uuid)
 
-        # Find file
-        file_found = False
-        for file_path in upload_dir.glob(f"{file_id}*"):
-            if file_path.is_file():
-                file_path.unlink()
-                file_found = True
-                logger.info(f"File deleted: {file_path.name}")
-
-        if not file_found:
+        if not success:
             raise HTTPException(status_code=404, detail="File not found")
 
-        return {"success": True, "message": "File deleted"}
+        logger.info(f"File deleted: {file_id}")
 
+        return ApiResponse(
+            success=True,
+            data={"message": "File and extracted files deleted successfully"}
+        )
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid file ID format")
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Delete file error: {e}")
+        logger.error(f"Delete file error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to delete file")

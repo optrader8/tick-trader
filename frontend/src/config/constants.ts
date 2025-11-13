@@ -8,13 +8,35 @@ export const WS_BASE_URL = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/
  * File upload configuration
  */
 export const FILE_UPLOAD = {
-  MAX_SIZE: 100 * 1024 * 1024, // 100MB
-  ALLOWED_TYPES: ['.csv', '.parquet', '.json'],
+  MAX_SIZE: 500 * 1024 * 1024, // 500MB (increased for zip files)
+  ALLOWED_TYPES: ['.csv', '.parquet', '.json', '.txt', '.zip', '.gz', '.tar', '.tar.gz'],
   ALLOWED_MIME_TYPES: [
     'text/csv',
     'application/json',
-    'application/octet-stream'
+    'application/octet-stream',
+    'text/plain',
+    'application/zip',
+    'application/x-zip-compressed',
+    'application/gzip',
+    'application/x-gzip',
+    'application/x-tar',
+    'application/x-compressed-tar'
   ]
+};
+
+/**
+ * File type icons and labels
+ */
+export const FILE_TYPE_INFO = {
+  csv: { icon: '📊', label: 'CSV', color: '#4CAF50' },
+  json: { icon: '📝', label: 'JSON', color: '#FF9800' },
+  txt: { icon: '📄', label: 'Text', color: '#2196F3' },
+  parquet: { icon: '🗂️', label: 'Parquet', color: '#9C27B0' },
+  zip: { icon: '📦', label: 'ZIP', color: '#F44336' },
+  gz: { icon: '🗜️', label: 'GZIP', color: '#607D8B' },
+  tar: { icon: '📦', label: 'TAR', color: '#795548' },
+  'tar.gz': { icon: '🗜️', label: 'TAR.GZ', color: '#607D8B' },
+  unknown: { icon: '❓', label: 'Unknown', color: '#9E9E9E' }
 };
 
 /**

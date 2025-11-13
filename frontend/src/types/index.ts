@@ -7,8 +7,30 @@ export interface FileMetadata {
   filename: string;
   original_name: string;
   file_size: number;
+  file_type: string;
   mime_type?: string;
+  is_extracted?: boolean;
+  parent_file_id?: string;
+  metadata?: {
+    columns?: string[];
+    column_count?: number;
+    row_count?: number;
+    line_count?: number;
+    file_count?: number;
+    files?: string[];
+    preview_rows?: any[];
+    preview?: string[];
+    [key: string]: any;
+  };
   uploaded_at: string;
+}
+
+export interface ExtractedFile {
+  file_id: string;
+  filename: string;
+  file_size: number;
+  file_type: string;
+  metadata?: any;
 }
 
 export interface FileUploadResponse {
@@ -16,7 +38,11 @@ export interface FileUploadResponse {
   filename: string;
   original_name: string;
   file_size: number;
+  file_type: string;
+  checksum: string;
+  metadata: any;
   uploaded_at: string;
+  extracted_files?: ExtractedFile[];
 }
 
 export type ModelType = 'lstm' | 'transformer' | 'ensemble' | 'cnn_lstm';

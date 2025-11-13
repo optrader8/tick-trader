@@ -33,8 +33,9 @@ class Settings(BaseSettings):
 
     # File Storage
     UPLOAD_DIR: str = "../aiend/data/raw"
-    MAX_FILE_SIZE: int = 104857600  # 100MB
-    ALLOWED_EXTENSIONS: str = ".csv,.parquet,.json"
+    EXTRACTED_DIR: str = "../aiend/data/extracted"
+    MAX_FILE_SIZE: int = 524288000  # 500MB (increased for zip files)
+    ALLOWED_EXTENSIONS: str = ".csv,.parquet,.json,.txt,.zip,.gz,.tar,.tar.gz"
 
     # AI Engine
     AIEND_PATH: str = "../aiend"
@@ -80,6 +81,11 @@ class Settings(BaseSettings):
     def upload_directory(self) -> Path:
         """Get upload directory path."""
         return Path(self.UPLOAD_DIR).resolve()
+
+    @property
+    def extracted_directory(self) -> Path:
+        """Get extracted files directory path."""
+        return Path(self.EXTRACTED_DIR).resolve()
 
     @property
     def aiend_directory(self) -> Path:
