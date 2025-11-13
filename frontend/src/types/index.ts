@@ -58,22 +58,43 @@ export interface Analysis {
 
 export interface AnalysisMetrics {
   accuracy: number;
-  precision: number;
-  recall: number;
-  f1_score: number;
+  precision?: number;
+  recall?: number;
+  f1_score?: number;
   sharpe_ratio: number;
   max_drawdown: number;
   final_pnl: number;
+  win_rate?: number;
+  total_trades?: number;
+  avg_trade_pnl?: number;
+  volatility?: number;
+}
+
+export interface PnLDataPoint {
+  timestamp: string;
+  cumulative_pnl: number;
+}
+
+export interface AccuracyDataPoint {
+  timestamp: string;
+  accuracy: number;
+}
+
+export interface FeatureImportance {
+  feature: string;
+  importance: number;
 }
 
 export interface AnalysisResults {
   analysis_id: string;
+  model_type: ModelType;
+  dataset_id: string;
+  config: ModelConfig;
   metrics: AnalysisMetrics;
-  charts_data?: {
-    pnl_curve: Array<{ timestamp: string; value: number }>;
-    predictions: Array<{ timestamp: string; actual: number; predicted: number }>;
-  };
-  download_urls: {
+  pnl_curve?: PnLDataPoint[];
+  prediction_accuracy?: AccuracyDataPoint[];
+  feature_importance?: FeatureImportance[];
+  download_urls?: {
     csv: string;
     json: string;
     report: string;

@@ -105,7 +105,157 @@ const AnalysisPage: React.FC = () => {
 
       <div className="card">
         <h3>Configuration</h3>
-        <pre>{JSON.stringify(config, null, 2)}</pre>
+        <div className="config-form">
+          {modelType === 'lstm' && (
+            <>
+              <div className="form-group">
+                <label>Sequence Length</label>
+                <input
+                  type="number"
+                  value={config.sequence_length || 100}
+                  onChange={(e) => setConfig({ ...config, sequence_length: parseInt(e.target.value) })}
+                />
+                <span className="form-help">Number of time steps to look back</span>
+              </div>
+              <div className="form-group">
+                <label>LSTM Units (comma-separated)</label>
+                <input
+                  type="text"
+                  value={config.lstm_units?.join(',') || '128,64,32'}
+                  onChange={(e) => setConfig({ ...config, lstm_units: e.target.value.split(',').map(Number) })}
+                />
+                <span className="form-help">Units per LSTM layer (e.g., 128,64,32)</span>
+              </div>
+              <div className="form-group">
+                <label>Dropout Rate</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="1"
+                  value={config.dropout_rate || 0.2}
+                  onChange={(e) => setConfig({ ...config, dropout_rate: parseFloat(e.target.value) })}
+                />
+                <span className="form-help">Dropout for regularization (0.0 - 1.0)</span>
+              </div>
+            </>
+          )}
+
+          {modelType === 'transformer' && (
+            <>
+              <div className="form-group">
+                <label>Sequence Length</label>
+                <input
+                  type="number"
+                  value={config.sequence_length || 100}
+                  onChange={(e) => setConfig({ ...config, sequence_length: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Model Dimension (d_model)</label>
+                <input
+                  type="number"
+                  value={config.d_model || 128}
+                  onChange={(e) => setConfig({ ...config, d_model: parseInt(e.target.value) })}
+                />
+                <span className="form-help">Dimensionality of the model</span>
+              </div>
+              <div className="form-group">
+                <label>Number of Heads</label>
+                <input
+                  type="number"
+                  value={config.n_heads || 8}
+                  onChange={(e) => setConfig({ ...config, n_heads: parseInt(e.target.value) })}
+                />
+                <span className="form-help">Number of attention heads</span>
+              </div>
+              <div className="form-group">
+                <label>Number of Layers</label>
+                <input
+                  type="number"
+                  value={config.num_layers || 4}
+                  onChange={(e) => setConfig({ ...config, num_layers: parseInt(e.target.value) })}
+                />
+              </div>
+            </>
+          )}
+
+          {modelType === 'cnn_lstm' && (
+            <>
+              <div className="form-group">
+                <label>Sequence Length</label>
+                <input
+                  type="number"
+                  value={config.sequence_length || 100}
+                  onChange={(e) => setConfig({ ...config, sequence_length: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className="form-group">
+                <label>CNN Filters (comma-separated)</label>
+                <input
+                  type="text"
+                  value={config.conv_filters?.join(',') || '64,128,256'}
+                  onChange={(e) => setConfig({ ...config, conv_filters: e.target.value.split(',').map(Number) })}
+                />
+                <span className="form-help">Filters per CNN layer (e.g., 64,128,256)</span>
+              </div>
+              <div className="form-group">
+                <label>LSTM Units (comma-separated)</label>
+                <input
+                  type="text"
+                  value={config.lstm_units?.join(',') || '128,64'}
+                  onChange={(e) => setConfig({ ...config, lstm_units: e.target.value.split(',').map(Number) })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Dropout Rate</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="1"
+                  value={config.dropout_rate || 0.2}
+                  onChange={(e) => setConfig({ ...config, dropout_rate: parseFloat(e.target.value) })}
+                />
+              </div>
+            </>
+          )}
+
+          {modelType === 'ensemble' && (
+            <>
+              <div className="form-group">
+                <label>Number of Estimators</label>
+                <input
+                  type="number"
+                  value={config.n_estimators || 100}
+                  onChange={(e) => setConfig({ ...config, n_estimators: parseInt(e.target.value) })}
+                />
+                <span className="form-help">Number of trees/estimators in ensemble</span>
+              </div>
+            </>
+          )}
+
+          {/* Common training parameters */}
+          <div className="form-divider">Training Parameters</div>
+          <div className="form-group">
+            <label>Epochs</label>
+            <input
+              type="number"
+              value={config.epochs || 50}
+              onChange={(e) => setConfig({ ...config, epochs: parseInt(e.target.value) })}
+            />
+            <span className="form-help">Number of training epochs</span>
+          </div>
+          <div className="form-group">
+            <label>Batch Size</label>
+            <input
+              type="number"
+              value={config.batch_size || 32}
+              onChange={(e) => setConfig({ ...config, batch_size: parseInt(e.target.value) })}
+            />
+            <span className="form-help">Training batch size</span>
+          </div>
+        </div>
       </div>
 
       <button
