@@ -1,0 +1,15 @@
+{
+  "name": "tick-trader",
+  "version": "1.0.0",
+  "description": "방대한 선물옵션 틱데이터를 분석하여 머신러닝 및 딥러닝 기법으로 가격 상승/하락 패턴을 예측하는 프로젝트입니다. 하루 수십만 건의 틱데이터에서 의미 있는 패턴을 발견하고 예측 모델을 구축하는 것을 목표로 합니다.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

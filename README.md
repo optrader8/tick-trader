@@ -1,6 +1,124 @@
-# Tick Trader - 선물옵션 틱데이터 기반 AI 트레이딩 시스템
+# AI Trading Platform - 선물옵션 틱데이터 기반 AI 트레이딩 플랫폼
 
-방대한 선물옵션 틱데이터를 분석하여 머신러닝 및 딥러닝 기법으로 가격 상승/하락 패턴을 예측하는 프로젝트입니다. 하루 수십만 건의 틱데이터에서 의미 있는 패턴을 발견하고 예측 모델을 구축하는 것을 목표로 합니다.
+종합적인 AI 트레이딩 플랫폼으로, 방대한 선물옵션 틱데이터를 분석하여 머신러닝 및 딥러닝 기법으로 가격 상승/하락 패턴을 예측합니다. 모노레포 구조로 개발되어 AI 엔진, API 백엔드, 웹 프론트엔드를 통합적으로 제공합니다.
+
+## 🏗️ 모노레포 구조
+
+```
+tick-trader/
+├── aiend/                     # AI 엔진 (Python ML)
+│   ├── src/                   # 머신러닝 소스 코드
+│   ├── config/                # 설정 파일
+│   ├── data/                  # 데이터 디렉토리
+│   ├── tests/                 # 테스트 스위트
+│   └── requirements.txt       # Python 의존성
+├── backend/                   # API 백엔드 (Node.js)
+├── frontend/                  # 웹 프론트엔드 (React TypeScript)
+└── README.md                 # 메인 프로젝트 문서
+```
+
+## 🎯 핵심 기능
+
+### 🤖 AI 엔진 (aiend)
+- **고급 머신러닝 모델**: LSTM, Transformer, CNN-LSTM, 앙상블
+- **실시간 예측**: 틱데이터 기반 실시간 트레이딩 시그널 생성
+- **특징 엔지니어링**: 호가창 분석, 시계열 특징 추출
+- **백테스팅**: 포괄적인 거래 시뮬레이션 및 성능 평가
+
+### 🔧 API 백엔드 (backend)
+- **RESTful API**: 표준화된 API 엔드포인트 제공
+- **실시간 통신**: WebSocket을 통한 실시간 데이터 전송
+- **데이터베이스**: 효율적인 데이터 저장 및 관리
+- **인증/인가**: 보안된 사용자 관리 시스템
+
+### 🎨 웹 프론트엔드 (frontend)
+- **트레이딩 대시보드**: 실시간 시장 데이터 및 포트폴리오 관리
+- **차트 및 시각화**: 고급 차트 라이브러리를 통한 데이터 시각화
+- **모델 성능 모니터링**: AI 모델 성능 실시간 추적
+- **사용자 인터페이스**: 직관적인 트레이딩 운영 환경
+
+## 🚀 빠른 시작
+
+### AI 엔진 개발
+```bash
+cd aiend
+pip install -r requirements.txt
+pip install -e .
+
+# 모델 훈련
+python -m src.training.trainer --model lstm --config config/config.yaml
+
+# 실시간 예측
+python -m src.prediction.realtime --config config/config.yaml
+```
+
+### 백엔드 개발
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### 프론트엔드 개발
+```bash
+cd frontend
+npm install
+npm start
+```
+
+## 📊 기술 스택
+
+### AI 엔진
+- **Python 3.8+**: 머신러닝 개발 언어
+- **TensorFlow/PyTorch**: 딥러닝 프레임워크
+- **Scikit-learn**: 머신러닝 라이브러리
+- **Pandas/NumPy**: 데이터 처리
+- **Apache Arrow**: 효율적 데이터 저장
+- **Redis**: 실시간 캐싱
+
+### 백엔드
+- **Node.js**: 서버 사이드 자바스크립트
+- **Express/Fastify**: 웹 프레임워크
+- **TypeScript**: 타입 안전성
+- **PostgreSQL**: 관계형 데이터베이스
+- **WebSocket**: 실시간 통신
+
+### 프론트엔드
+- **React 18**: 사용자 인터페이스 라이브러리
+- **TypeScript**: 타입 안전성
+- **Tailwind CSS**: 스타일링 프레임워크
+- **Chart.js/D3.js**: 데이터 시각화
+- **Vite**: 빠른 빌드 도구
+
+## 🔄 개발 워크플로우
+
+1. **AI 엔진**: 머신러닝 모델 개발 및 훈련
+2. **API 백엔드**: 모델 서빙 및 데이터 관리
+3. **웹 프론트엔드**: 사용자 인터페이스 및 시각화
+4. **통합 테스트**: 전체 시스템 통합 및 테스트
+5. **배포**: 프로덕션 환경 배포
+
+## 📈 개발 로드맵
+
+### Phase 1: 기반 구축
+- [x] AI 엔진 핵심 기능 구현
+- [ ] API 백엔드 기본 구조 완성
+- [ ] 프론트엔드 기본 UI 구현
+
+### Phase 2: 통합 개발
+- [ ] AI 엔진과 백엔드 연동
+- [ ] 실시간 데이터 파이프라인 구축
+- [ ] 웹 기반 트레이딩 대시보드 개발
+
+### Phase 3: 고급 기능
+- [ ] 다중 전략 트레이딩 시스템
+- [ ] 포트폴리오 관리 기능
+- [ ] 리스크 관리 시스템
+
+### Phase 4: 최적화 및 배포
+- [ ] 성능 최적화
+- [ ] Docker 컨테이너화
+- [ ] 클라우드 배포
 
 ## 🎯 프로젝트 목표
 
