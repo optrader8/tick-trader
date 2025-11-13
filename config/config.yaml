@@ -1,0 +1,71 @@
+# Tick Trader Configuration
+
+# 데이터 경로 설정
+data:
+  raw_path: "data/raw"
+  processed_path: "data/processed"
+  features_path: "data/features"
+  models_path: "data/models"
+
+# 데이터 수집 설정
+ingestion:
+  batch_size: 10000
+  error_threshold: 0.1
+  chunk_size: 50000
+
+# 특징 엔지니어링 설정
+features:
+  orderbook_depth: 10
+  time_windows: [5, 10, 20, 50]
+  scaling_method: "standard"  # standard, minmax, none
+
+# 모델 학습 설정
+training:
+  # LSTM 설정
+  lstm:
+    sequence_length: 100
+    lstm_units: [128, 64, 32]
+    dropout_rate: 0.2
+    learning_rate: 0.001
+    epochs: 50
+    batch_size: 32
+
+  # Ensemble 설정
+  ensemble:
+    ensemble_type: "stacking"
+    n_estimators: 100
+
+  # Transformer 설정
+  transformer:
+    d_model: 128
+    n_heads: 8
+    num_layers: 4
+    dropout_rate: 0.1
+    epochs: 50
+    batch_size: 32
+
+  # CNN-LSTM 설정
+  cnn_lstm:
+    conv_filters: [64, 32]
+    lstm_units: 64
+    epochs: 50
+    batch_size: 32
+
+# 백테스팅 설정
+backtest:
+  initial_capital: 100000
+  transaction_cost: 0.001  # 0.1%
+  risk_free_rate: 0.02  # 2%
+
+# 실시간 예측 설정
+prediction:
+  window_size: 100
+  use_redis: false
+  redis_host: "localhost"
+  redis_port: 6379
+
+# 로깅 설정
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/tick_trader.log"
