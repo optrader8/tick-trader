@@ -30,9 +30,12 @@ class File(Base):
     original_name = Column(String(255), nullable=False)
     file_path = Column(Text, nullable=False)
     file_size = Column(BigInteger, nullable=False)
+    file_type = Column(String(50))  # csv, json, txt, zip, parquet, etc.
     mime_type = Column(String(100))
     checksum = Column(String(64))
-    metadata = Column(JSON)
+    is_extracted = Column(Integer, default=0)  # 0: no, 1: yes (for zip files)
+    parent_file_id = Column(UUID(as_uuid=True), nullable=True)  # Reference to parent zip file
+    metadata = Column(JSON)  # Additional metadata (rows, columns, date range, etc.)
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
     created_by = Column(UUID(as_uuid=True))
 

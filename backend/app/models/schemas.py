@@ -25,7 +25,11 @@ class FileUploadResponse(BaseModel):
     filename: str
     original_name: str
     file_size: int
-    uploaded_at: datetime
+    file_type: str
+    checksum: str
+    metadata: Dict[str, Any]
+    uploaded_at: str
+    extracted_files: Optional[List[Dict[str, Any]]] = None
 
     class Config:
         from_attributes = True
@@ -33,12 +37,25 @@ class FileUploadResponse(BaseModel):
 
 class FileMetadata(BaseModel):
     """File metadata."""
-    id: UUID
+    id: str
     filename: str
     original_name: str
     file_size: int
+    file_type: str
     mime_type: Optional[str] = None
-    uploaded_at: datetime
+    is_extracted: bool = False
+    parent_file_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+    uploaded_at: str
+
+    class Config:
+        from_attributes = True
+
+
+class FileListResponse(BaseModel):
+    """File list response."""
+    files: List[FileMetadata]
+    count: int
 
 
 # Analysis schemas
